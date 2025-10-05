@@ -1,0 +1,99 @@
+<script>
+// Sidebar toggle functionality
+window.toggleSidebar = function() {
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.getElementById('mainContent');
+    const overlay = document.getElementById('sidebarOverlay');
+    
+    // Check if we're on mobile
+    const isMobile = window.innerWidth <= 768;
+    
+    if (isMobile) {
+        // Mobile behavior - toggle mobile-open class and overlay
+        sidebar.classList.toggle('mobile-open');
+        overlay.classList.toggle('active');
+        
+        // Prevent body scroll when sidebar is open
+        if (sidebar.classList.contains('mobile-open')) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+    } else {
+        // Desktop behavior - toggle collapsed state
+        sidebar.classList.toggle('collapsed');
+        if (mainContent) {
+            mainContent.classList.toggle('sidebar-collapsed');
+        }
+        
+        // Save state to localStorage
+        const isCollapsed = sidebar.classList.contains('collapsed');
+        localStorage.setItem('sidebarCollapsed', isCollapsed);
+    }
+};
+
+// Close mobile sidebar
+window.closeMobileSidebar = function() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    
+    sidebar.classList.remove('mobile-open');
+    overlay.classList.remove('active');
+    document.body.style.overflow = '';
+};
+
+// Handle window resize
+window.addEventListener('resize', function() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    const mainContent = document.getElementById('mainContent');
+    
+    if (window.innerWidth > 768) {
+        // Desktop mode - clean up mobile classes
+        sidebar.classList.remove('mobile-open');
+        overlay.classList.remove('active');
+        document.body.style.overflow = '';
+        
+        // Restore desktop collapsed state
+        const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+        if (isCollapsed) {
+            sidebar.classList.add('collapsed');
+            if (mainContent) {
+                mainContent.classList.add('sidebar-collapsed');
+            }
+        } else {
+            sidebar.classList.remove('collapsed');
+            if (mainContent) {
+                mainContent.classList.remove('sidebar-collapsed');
+            }
+        }
+    } else {
+        // Mobile mode - clean up desktop classes
+        sidebar.classList.remove('collapsed');
+        if (mainContent) {
+            mainContent.classList.remove('sidebar-collapsed');
+        }
+    }
+});
+
+// Initialize sidebar state from localStorage
+document.addEventListener('DOMContentLoaded', function() {
+    // Only apply saved state on desktop
+    if (window.innerWidth > 768) {
+        const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+        if (isCollapsed) {
+            document.getElementById('sidebar').classList.add('collapsed');
+            const mainContent = document.getElementById('mainContent');
+            if (mainContent) {
+                mainContent.classList.add('sidebar-collapsed');
+            }
+        }
+    }
+});
+
+// Logout function (if authentication is implemented)
+window.logout = function() {
+    // For now, just redirect to home or login if no auth is present
+    window.location.href = '/'; 
+};
+</script>

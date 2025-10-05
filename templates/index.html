@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice Translate Agent</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+    {% set session_controls = true %}
+    {% include 'sub/sidebar.html' %}
+
+    <!-- Main Content Area -->
+    <div class="main-content" id="mainContent">
+        <div class="header">
+            <div class="header-content">
+                <button class="mobile-menu-btn" id="mobileMenuBtn" onclick="toggleSidebar()">
+                    <span class="hamburger"></span>
+                    <span class="hamburger"></span>
+                    <span class="hamburger"></span>
+                </button>
+                <div class="header-title">
+                    <h1>Voice Translate Agent</h1>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="chat-container">
+            <div class="messages" id="messages">
+                <div class="message assistant">
+                    <div class="message-avatar">AI</div>
+                    <div class="message-content">
+                        <p>Hello! I'm your Voice Translate assistant. Upload an MP3 file to get it transcribed, translated, and summarized.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="results-container" id="resultsContainer">
+                {% if result %}
+                    {% if result is string %}
+                        <div class="error-message">{{ result }}</div>
+                    {% else %}
+                        <div class="result-section">
+                            <h3>Original Transcript (Detected Language: {{ result.detected_language }})</h3>
+                            <p>{{ result.original_transcript }}</p>
+                        </div>
+                        <div class="result-section">
+                            <h3>Translated Text (English)</h3>
+                            <p>{{ result.translated_text }}</p>
+                        </div>
+                        <div class="result-section">
+                            <h3>Summary of Discussed Points</h3>
+                            <p>{{ result.summary }}</p>
+                        </div>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="input-container">
+            <form class="input-form" id="uploadForm" action="/upload_audio" method="POST" enctype="multipart/form-data">
+                <input type="file" class="input-field" id="audioFile" name="audio_file" accept=".mp3" required>
+                <button type="submit" class="send-btn" id="uploadBtn">Upload & Translate</button>
+            </form>
+        </div>
+
+        <script>
+            const uploadForm = document.getElementById('uploadForm');
+            const audioFile = document.getElementById('audioFile');
+            const uploadBtn = document.getElementById('uploadBtn');
+            const resultsContainer = document.getElementById('resultsContainer');
+
+            uploadForm.addEventListener('submit', async function (e) {
+                e.preventDefault();
+                
+                if (!audioFile.files.length) {
+                    alert("Please select an MP3 file to upload.");
+                    return;
+                }
+
+                uploadBtn.disabled = true;
+                uploadBtn.textContent = 'Uploading...';
+
+                const formData = new FormData();
+                formData.append('audio_file', audioFile.files[0]);
+
+                try {
+                    const response = await fetch('/upload_audio', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const htmlResponse = await response.text();
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(htmlResponse, 'text/html');
+                    const newResultsContainer = doc.getElementById('resultsContainer');
+                    
+                    if (newResultsContainer) {
+                        resultsContainer.innerHTML = newResultsContainer.innerHTML;
+                    } else {
+                        resultsContainer.innerHTML = `<div class="error-message">Error: Could not parse response from server.</div>`;
+                    }
+
+                } catch (error) {
+                    resultsContainer.innerHTML = `<div class="error-message">An error occurred during upload: ${error.message}</div>`;
+                } finally {
+                    uploadBtn.disabled = false;
+                    uploadBtn.textContent = 'Upload & Translate';
+                }
+            });
+        </script>
+
+        {% include 'sub/sidebar_js.html' %}
+    </div>
+</body>
+
+</html>

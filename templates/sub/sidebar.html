@@ -1,0 +1,64 @@
+<!-- Sidebar Overlay for Mobile -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
+
+<!-- Left Sidebar Menu -->
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <h2>Reverser Agent</h2>
+        <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">
+            <span class="hamburger"></span>
+            <span class="hamburger"></span>
+            <span class="hamburger"></span>
+        </button>
+    </div>
+    
+    <div class="sidebar-content">
+        <div class="user-section">
+            <div class="user-info">
+                <div class="user-avatar">{{ user[0].upper() if user else 'U' }}</div>
+                <span class="user-name">{{ user or 'User' }}</span>
+            </div>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <div class="nav-section">
+                <h3>Navigation</h3>
+                <div class="nav-buttons">
+                    <button class="nav-btn" onclick="window.location.href='/'" 
+                            {% if request.endpoint == 'index' %}style="background: #f1f3f4;"{% endif %}>
+                        <span class="nav-icon">💬</span>
+                        <span class="nav-text">Chat</span>
+                    </button>
+                    <button class="nav-btn" onclick="window.location.href='/settings'"
+                            {% if request.endpoint == 'settings' %}style="background: #f1f3f4;"{% endif %}>
+                        <span class="nav-icon">⚙️</span>
+                        <span class="nav-text">Settings</span>
+                    </button>
+                </div>
+            </div>
+            
+            {% if session_controls %}
+            <div class="nav-section">
+                <h3>Session</h3>
+                <div class="session-info">
+                    <span class="session-label">Current:</span>
+                    <span class="session-id" id="sessionId">default</span>
+                </div>
+                <div class="nav-buttons">
+                    <button class="nav-btn" onclick="newSession()">
+                        <span class="nav-icon">+</span>
+                        <span class="nav-text">New Session</span>
+                    </button>
+                    <button class="nav-btn" onclick="clearConversation()">
+                        <span class="nav-icon">🗑</span>
+                        <span class="nav-text">Clear History</span>
+                    </button>
+                </div>
+            </div>
+            {% endif %}
+            
+            <div class="nav-section nav-section-bottom">
+            </div>
+        </nav>
+    </div>
+</div>

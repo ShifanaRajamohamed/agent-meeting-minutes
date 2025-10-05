@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Default Instructions - CSV Chatbot</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        /* Override main CSS to allow scrolling for settings page */
+        body {
+            overflow: auto !important;
+            height: auto !important;
+            display: flex !important;
+            flex-direction: row !important;
+        }
+        
+        html, body {
+            height: auto !important;
+            min-height: 100vh;
+        }
+        
+        .main-content {
+            overflow-y: auto;
+            height: 100vh;
+        }
+        
+        .settings-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .section {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .section h2 {
+            margin-top: 0;
+            color: #333;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+        .back-link {
+            color: #007bff;
+            text-decoration: none;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        .default-instructions {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: monospace;
+            white-space: pre-line;
+            max-height: 600px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+        }
+        .loading {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    {% set session_controls = false %}
+    {% include 'sub/sidebar.html' %}
+    
+    <!-- Main Content Area -->
+    <div class="main-content" id="mainContent">
+        <div class="header">
+            <div class="header-content">
+                <button class="mobile-menu-btn" id="mobileMenuBtn" onclick="toggleSidebar()">
+                    <span class="hamburger"></span>
+                    <span class="hamburger"></span>
+                    <span class="hamburger"></span>
+                </button>
+                <div class="header-title">
+                    <h1>Default Instructions</h1>
+                    <p>Built-in rules that guide reverser agent behavior</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="settings-container">
+            <a href="/settings" class="back-link">← Back to Settings</a>
+            
+            <!-- Default Instructions Section -->
+            <div class="section">
+                <h2>Default Instructions</h2>
+                <p>These are the built-in rules that guide reverser agent behavior. These instructions are always active and cannot be modified.</p>
+                <div class="default-instructions" id="defaultInstructions">
+                    <div class="loading">Loading default instructions...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Load default instructions on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDefaultInstructions();
+        });
+
+        async function loadDefaultInstructions() {
+            try {
+                // For reverser agent, default instructions might be hardcoded or loaded differently.
+                // For now, display a placeholder or a simple message.
+                document.getElementById('defaultInstructions').textContent = 
+                    "This agent is configured to reverse the input text.";
+                
+            } catch (error) {
+                console.error('Error loading default instructions:', error);
+                document.getElementById('defaultInstructions').innerHTML = 
+                    '<div style="color: #dc3545;">Failed to load default instructions.</div>';
+            }
+        }
+    </script>
+
+    {% include 'sub/sidebar_js.html' %}
+</body>
+</html>

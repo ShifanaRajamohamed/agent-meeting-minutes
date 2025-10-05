@@ -1,0 +1,13 @@
+fastapi
+python-dotenv
+uvicorn
+Jinja2
+langchain-google-genai
+langchain-core
+langdetect
+transformers
+torch
+soundfile
+librosa
+langid
+tf-keras

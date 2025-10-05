@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rules - CSV Chatbot</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        /* Override main CSS to allow scrolling for settings page */
+        body {
+            overflow: auto !important;
+            height: auto !important;
+            display: flex !important;
+            flex-direction: row !important;
+        }
+        
+        html, body {
+            height: auto !important;
+            min-height: 100vh;
+        }
+        
+        .main-content {
+            overflow-y: auto;
+            height: 100vh;
+        }
+        
+        .settings-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .section {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .section h2 {
+            margin-top: 0;
+            color: #333;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+        .back-link {
+            color: #007bff;
+            text-decoration: none;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        .rule-item {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 10px;
+            background: #f9f9f9;
+        }
+        .rule-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .rule-text {
+            font-family: monospace;
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .rule-description {
+            color: #666;
+            font-style: italic;
+        }
+        .rule-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-secondary { background: #6c757d; color: white; }
+        .btn-danger { background: #dc3545; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn:hover { opacity: 0.8; }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group.checkbox-group {
+            margin-bottom: 15px;
+        }
+        .form-group.checkbox-group label {
+            display: inline-flex !important;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 0 !important;
+            font-weight: normal;
+            cursor: pointer;
+        }
+        .form-group.checkbox-group input[type="checkbox"] {
+            width: auto !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .form-group textarea {
+            height: 100px;
+            resize: vertical;
+        }
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: #2196F3;
+        }
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        .add-rule-form {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 4px;
+            margin-top: 20px;
+        }
+        
+        /* Toast notification styles */
+        .toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            max-width: 400px;
+        }
+        
+        .toast {
+            background: #333;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            transform: translateX(100%);
+            transition: transform 0.3s ease-in-out;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .toast.show {
+            transform: translateX(0);
+        }
+        
+        .toast.success {
+            background: #28a745;
+        }
+        
+        .toast.error {
+            background: #dc3545;
+        }
+        
+        .toast.warning {
+            background: #ffc107;
+            color: #212529;
+        }
+        
+        .toast-close {
+            background: none;
+            border: none;
+            color: inherit;
+            font-size: 18px;
+            cursor: pointer;
+            margin-left: 10px;
+            padding: 0;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Modal styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+        
+        .modal-overlay.show {
+            display: flex;
+        }
+        
+        .modal {
+            background: white;
+            border-radius: 8px;
+            padding: 24px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            transform: scale(0.9);
+            transition: transform 0.2s ease-out;
+        }
+        
+        .modal-overlay.show .modal {
+            transform: scale(1);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .modal-title {
+            margin: 0;
+            color: #333;
+            font-size: 18px;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+        
+        .modal-close:hover {
+            background: #f5f5f5;
+            color: #333;
+        }
+        
+        .modal-body {
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+        
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+        
+        .rule-preview {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 12px;
+            margin: 15px 0;
+            font-family: monospace;
+            font-size: 14px;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    {% set session_controls = false %}
+    {% include 'sub/sidebar.html' %}
+    
+    <!-- Main Content Area -->
+    <div class="main-content" id="mainContent">
+        <div class="header">
+            <div class="header-content">
+                <button class="mobile-menu-btn" id="mobileMenuBtn" onclick="toggleSidebar()">
+                    <span class="hamburger"></span>
+                    <span class="hamburger"></span>
+                    <span class="hamburger"></span>
+                </button>
+                <div class="header-title">
+                    <h1>Rules Management</h1>
+                    <p>Edit and view custom rules for reverser agent behavior</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="settings-container">
+            <a href="/settings" class="back-link">← Back to Settings</a>
+            
+            <!-- User Rules Section -->
+            <div class="section">
+                <h2>Custom User Rules</h2>
+                <p>Add your own custom rules to modify reverser agent behavior:</p>
+                
+                <div id="userRules">
+                    Loading...
+                </div>
+
+                <!-- Add New Rule Form -->
+                <div class="add-rule-form">
+                    <h3>Add New Rule</h3>
+                    <form id="addRuleForm">
+                        <div class="form-group">
+                            <label for="ruleText">Rule Text:</label>
+                            <textarea id="ruleText" name="rule_text" placeholder="Enter your custom rule..." required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="ruleDescription">Description (optional):</label>
+                            <input type="text" id="ruleDescription" name="description" placeholder="Brief description of what this rule does">
+                        </div>
+                        <div class="form-group checkbox-group">
+                            <label for="ruleEnabled">
+                                <input type="checkbox" id="ruleEnabled" name="enabled" checked> Enabled
+                            </label>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Add Rule</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let userRules = [];
+
+        // Load settings on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadRules();
+        });
+
+        async function loadRules() {
+            try {
+                // For reverser agent, rules management might be simplified or not fully implemented.
+                // For now, display a placeholder or a simple message.
+                document.getElementById('userRules').innerHTML = '<p>Custom rules for reverser agent are not yet implemented in this version.</p>';
+                
+            } catch (error) {
+                console.error('Error loading rules:', error);
+                showToast('Failed to load rules', 'error');
+            }
+        }
+
+        // Placeholder for toast notification system (if needed for future implementation)
+        function showToast(message, type = 'success', duration = 4000) {
+            console.log(`Toast (${type}): ${message}`);
+            // Implement actual toast display if needed
+        }
+
+        function closeToast(closeButton) {
+            // Implement actual toast closing if needed
+        }
+    </script>
+    
+    <!-- Delete Confirmation Modal (placeholder) -->
+    <div class="modal-overlay" id="deleteModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Delete Rule</h3>
+                <button class="modal-close" onclick="closeDeleteModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this rule? This action cannot be undone.</p>
+                <div class="rule-preview" id="deleteRulePreview"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeDeleteModal()">Cancel</button>
+                <button class="btn btn-danger" id="confirmDeleteBtn">Delete Rule</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container (placeholder) -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    {% include 'sub/sidebar_js.html' %}
+</body>
+</html>
